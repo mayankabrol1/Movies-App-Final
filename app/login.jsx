@@ -126,7 +126,7 @@ export default function LoginScreen() {
             <Text className="font-semibold text-white">{authLoading ? "Signing up..." : "Sign up with Google"}</Text>
           </View>
         </AppButton>
-        {!!authError && <Text className="text-red-600 mt-2">{authError}</Text>}
+       {/* {!!authError && <Text className="text-red-600 mt-2">{authError}</Text>}
         {!webClientId ? (
           <Text className="text-amber-600 mt-2">
             Missing EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in environment configuration.
