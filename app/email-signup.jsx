@@ -38,13 +38,17 @@ export default function EmailSignupScreen() {
       allowsEditing: false,
       selectionLimit: 1,
       quality: 0.3,
-      base64: false,
+      base64: true,
     });
     if (result.canceled) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
+    if (!asset.base64) {
+      Alert.alert("Image error", "Could not read the selected image. Please try another one.");
+      return;
+    }
     setAvatarPreviewUri(asset.uri);
-    setAvatarDataUri(asset.uri);
+    setAvatarDataUri(`data:${asset.mimeType || "image/jpeg"};base64,${asset.base64}`);
   }
 
   async function onSignup() {
