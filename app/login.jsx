@@ -112,7 +112,7 @@ export default function LoginScreen() {
           disabled={authLoading}
         >
           <View className="flex-row items-center gap-2">
-            <FontAwesome name="user" size={16} color="#ffffff" />
+            <FontAwesome name="envelope-o" size={16} color="#ffffff" />
             <Text className="font-semibold text-white">Sign up with Email</Text>
           </View>
         </AppButton>
