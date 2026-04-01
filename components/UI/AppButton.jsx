@@ -8,8 +8,8 @@ const AppButton = ({ className = "", children, disabled, variant = "primary", ..
     variantClasses = "bg-gray-100 border-gray-300";
     textColor = "#111827";
   } else if (variant === "danger") {
-    variantClasses = "bg-red-100 border-red-300";
-    textColor = "#111827";
+    variantClasses = "bg-red-600 border-red-600";
+    textColor = "#ffffff";
   } else if (variant === "info") {
     variantClasses = "bg-blue-100 border-blue-300";
     textColor = "#1d4ed8";

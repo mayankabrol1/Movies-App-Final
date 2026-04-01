@@ -150,21 +150,22 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="mt-8">
-          <AppButton className="bg-cyan-500 border-cyan-500" onPress={() => router.push("/library")}>
-            Go to Saved Library
+        <View className="mt-8 gap-2">
+          <AppButton className="bg-white border-cyan-500 py-3" onPress={() => router.push("/library")}>
+            <Text className="text-md font-semibold text-cyan-500">Go to Saved Library</Text>
           </AppButton>
           <AppButton
-            variant="danger"
+            className="bg-cyan-500 border-cyan-500 py-3"
             onPress={() => {
               logout();
               router.replace("/login");
             }}
           >
-            Logout
+            <Text className="text-md font-semibold text-white">Logout</Text>
           </AppButton>
           <AppButton
             variant="danger"
+            className="py-3"
             onPress={() =>
               Alert.alert(
                 "Delete Account",
@@ -183,7 +184,7 @@ export default function ProfileScreen() {
               )
             }
           >
-            Delete Account
+            <Text className="text-base font-semibold text-white">Delete Account</Text>
           </AppButton>
         </View>
       </View>
