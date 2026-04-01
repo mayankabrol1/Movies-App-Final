@@ -14,7 +14,7 @@ export default function ProfileMenuButton() {
     <View>
       <Pressable
         onPress={() => setOpen(true)}
-        className={`h-11 w-11 rounded-full items-center justify-center overflow-hidden ${
+        className={`h-10 w-10 rounded-full items-center justify-center overflow-hidden ${
           currentUser?.photoUrl ? "" : "bg-white border border-gray-200"
         }`}
       >
