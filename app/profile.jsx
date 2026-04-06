@@ -217,8 +217,8 @@ export default function ProfileScreen() {
           </AppButton>
           <AppButton
             className="bg-cyan-500 border-cyan-500 py-3"
-            onPress={() => {
-              logout();
+            onPress={async () => {
+              await logout();
               router.replace("/login");
             }}
           >

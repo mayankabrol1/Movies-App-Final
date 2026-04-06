@@ -38,6 +38,13 @@ async function clearTokens() {
   ]);
 }
 
+async function persistSession(accessToken, refreshToken, user) {
+  await Promise.all([
+    storeTokens(accessToken, refreshToken),
+    AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user)),
+  ]);
+}
+
 export function AppStateProvider({ children }) {
   const [isReady, setIsReady] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -62,8 +69,7 @@ export function AppStateProvider({ children }) {
 
     const data = await response.json();
     if (!data?.accessToken || !data?.refreshToken || !data?.user) return null;
-    await storeTokens(data.accessToken, data.refreshToken);
-    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+    await persistSession(data.accessToken, data.refreshToken, data.user);
     setCurrentUser(data.user);
     return data.accessToken;
   }
@@ -113,8 +119,7 @@ export function AppStateProvider({ children }) {
   }
 
   async function clearSession() {
-    await clearTokens();
-    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    await Promise.all([clearTokens(), AsyncStorage.removeItem(USER_STORAGE_KEY)]);
     setCurrentUser(null);
     setSavedItems([]);
   }
@@ -173,8 +178,7 @@ export function AppStateProvider({ children }) {
         throw new Error(data?.message || (intent === "signup" ? "Google sign-up failed" : "Google sign-in failed"));
       }
 
-      await storeTokens(data.accessToken, data.refreshToken);
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+      await persistSession(data.accessToken, data.refreshToken, data.user);
       setCurrentUser(data.user);
       const items = Array.isArray(data?.items) ? data.items.map(normalizeSavedItem) : [];
       setSavedItems(items);
@@ -208,8 +212,7 @@ export function AppStateProvider({ children }) {
       if (!response.ok) {
         throw new Error(data?.message || "Could not sign in");
       }
-      await storeTokens(data.accessToken, data.refreshToken);
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+      await persistSession(data.accessToken, data.refreshToken, data.user);
       setCurrentUser(data.user);
       return data.user;
     } catch (error) {
@@ -233,8 +236,7 @@ export function AppStateProvider({ children }) {
       if (!response.ok) {
         throw new Error(data?.message || "Could not create account");
       }
-      await storeTokens(data.accessToken, data.refreshToken);
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+      await persistSession(data.accessToken, data.refreshToken, data.user);
       setCurrentUser(data.user);
       return data.user;
     } catch (error) {

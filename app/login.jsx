@@ -33,10 +33,9 @@ function getAuthAlertMessage(message) {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { currentUser, isReady, loginWithGoogle, signupWithGoogle, authLoading, authError, clearAuthError } = useAppState();
+  const { currentUser, isReady, loginWithGoogle, authLoading, authError, clearAuthError } = useAppState();
   const lastHandledTokenRef = useRef("");
   const lastAuthErrorRef = useRef("");
-  const googleIntentRef = useRef("signin");
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || webClientId;
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || webClientId;
@@ -65,15 +64,14 @@ export default function LoginScreen() {
       if (lastHandledTokenRef.current === idToken) return;
       lastHandledTokenRef.current = idToken;
       try {
-        const authAction = googleIntentRef.current === "signup" ? signupWithGoogle : loginWithGoogle;
-        const user = await authAction(idToken);
+        const user = await loginWithGoogle(idToken);
         router.replace(user?.profileComplete ? "/movies" : "/complete-profile");
       } catch (error) {
         // Errors are surfaced through authError alert effect below.
       }
     }
     handleResponse();
-  }, [loginWithGoogle, response, router, signupWithGoogle]);
+  }, [loginWithGoogle, response, router]);
 
   useEffect(() => {
     const rawMessage = String(authError || "").trim();
@@ -84,8 +82,7 @@ export default function LoginScreen() {
     clearAuthError();
   }, [authError, clearAuthError]);
 
-  function onGooglePress(intent) {
-    googleIntentRef.current = intent;
+  function onGooglePress() {
     promptAsync();
   }
 
@@ -106,11 +103,10 @@ export default function LoginScreen() {
       </View>
       <Text className="text-3xl font-bold text-gray-900 text-center">Welcome to Movies App</Text>
       <Text className="text-lg text-gray-600 mt-3 mb-3 leading-6 text-center ">
-      Sign in to discover, view, and save movies and TV shows to your library.
+        Sign in or create an account to save movies and TV shows to your library.
       </Text>
 
-      <View className="mt-5">
-        <Text className="text-gray-700 mb-2">Already have an account?</Text>
+      <View className="mt-6">
         <AppButton
           className="bg-white border-gray-300 py-4"
           onPress={() => router.push("/email-signin")}
@@ -122,20 +118,6 @@ export default function LoginScreen() {
           </View>
         </AppButton>
         <AppButton
-          className="bg-white border-gray-300 py-4 mb-3"
-          onPress={() => onGooglePress("signin")}
-          disabled={!request || authLoading}
-        >
-          <View className="flex-row items-center gap-2 ">
-            <FontAwesome name="google" size={16} color="#111827" />
-            <Text className="font-semibold text-gray-900">
-              {authLoading ? "Signing in..." : "Sign in with Google"}
-            </Text>
-          </View>
-        </AppButton>
-
-        <Text className="text-gray-700 mt-2 mb-2">New here?</Text>
-        <AppButton
           className="bg-cyan-500 border-cyan-500 py-4"
           onPress={() => router.push("/email-signup")}
           disabled={authLoading}
@@ -145,14 +127,22 @@ export default function LoginScreen() {
             <Text className="font-semibold text-white">Sign up with Email</Text>
           </View>
         </AppButton>
+
+        <View className="flex-row items-center my-5">
+          <View className="flex-1 h-0.5 bg-gray-200" />
+          <View className="flex-1 h-0.5 bg-gray-200" />
+        </View>
+
         <AppButton
-          className="bg-cyan-500 border-cyan-500 py-4"
-          onPress={() => onGooglePress("signup")}
+          className="bg-white border-gray-300 py-4"
+          onPress={onGooglePress}
           disabled={!request || authLoading}
         >
           <View className="flex-row items-center gap-2">
-            <FontAwesome name="google" size={16} color="#ffffff" />
-            <Text className="font-semibold text-white">{authLoading ? "Signing up..." : "Sign up with Google"}</Text>
+            <FontAwesome name="google" size={16} color="#111827" />
+            <Text className="font-semibold text-gray-900">
+              {authLoading ? "Continuing..." : "Continue with Google"}
+            </Text>
           </View>
         </AppButton>
       </View>
