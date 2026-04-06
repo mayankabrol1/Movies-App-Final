@@ -9,7 +9,7 @@ import { useAppState } from "../lib/app-state";
 
 export default function EmailSigninScreen() {
   const router = useRouter();
-  const { currentUser, loginWithPassword, authLoading } = useAppState();
+  const { currentUser, loginWithPassword, authLoading, clearAuthError } = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -25,6 +25,7 @@ export default function EmailSigninScreen() {
       const user = await loginWithPassword({ email: cleanEmail, password });
       router.replace(user?.profileComplete ? "/movies" : "/complete-profile");
     } catch (error) {
+      clearAuthError();
       Alert.alert("Sign in failed", error?.message || "Please try again.");
     }
   }
@@ -40,7 +41,14 @@ export default function EmailSigninScreen() {
         <AppButton className="bg-cyan-500 border-cyan-500" onPress={onSignin} disabled={authLoading}>
           {authLoading ? "Signing in..." : "Sign in"}
         </AppButton>
-        <AppButton variant="secondary" onPress={() => router.replace("/login")} disabled={authLoading}>
+        <AppButton
+          variant="secondary"
+          onPress={() => {
+            clearAuthError();
+            router.replace("/login");
+          }}
+          disabled={authLoading}
+        >
           Back
         </AppButton>
       </View>

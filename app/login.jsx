@@ -33,7 +33,7 @@ function getAuthAlertMessage(message) {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { currentUser, isReady, loginWithGoogle, signupWithGoogle, authLoading, authError } = useAppState();
+  const { currentUser, isReady, loginWithGoogle, signupWithGoogle, authLoading, authError, clearAuthError } = useAppState();
   const lastHandledTokenRef = useRef("");
   const lastAuthErrorRef = useRef("");
   const googleIntentRef = useRef("signin");
@@ -81,7 +81,8 @@ export default function LoginScreen() {
     if (!message || message === lastAuthErrorRef.current) return;
     lastAuthErrorRef.current = message;
     Alert.alert(getAuthAlertTitle(message), getAuthAlertMessage(message));
-  }, [authError]);
+    clearAuthError();
+  }, [authError, clearAuthError]);
 
   function onGooglePress(intent) {
     googleIntentRef.current = intent;

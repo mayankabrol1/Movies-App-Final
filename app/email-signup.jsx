@@ -14,7 +14,7 @@ import { validateProfilePayload } from "../lib/profile-validation";
 
 export default function EmailSignupScreen() {
   const router = useRouter();
-  const { currentUser, signupWithPassword, authLoading } = useAppState();
+  const { currentUser, signupWithPassword, authLoading, clearAuthError } = useAppState();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,6 +99,7 @@ export default function EmailSignupScreen() {
       });
       router.replace("/movies");
     } catch (error) {
+      clearAuthError();
       Alert.alert("Sign up failed", error?.message || "Please try again.");
     }
   }
@@ -164,7 +165,14 @@ export default function EmailSignupScreen() {
         <AppButton className="bg-cyan-500 border-cyan-500" onPress={onSignup} disabled={authLoading}>
           {authLoading ? "Creating account..." : "Sign up"}
         </AppButton>
-        <AppButton variant="secondary" onPress={() => router.replace("/login")} disabled={authLoading}>
+        <AppButton
+          variant="secondary"
+          onPress={() => {
+            clearAuthError();
+            router.replace("/login");
+          }}
+          disabled={authLoading}
+        >
           Back
         </AppButton>
       </View>

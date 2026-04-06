@@ -45,6 +45,10 @@ export function AppStateProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
 
+  function clearAuthError() {
+    setAuthError("");
+  }
+
   async function refreshAccessToken() {
     const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
     if (!refreshToken) return null;
@@ -405,6 +409,7 @@ export function AppStateProvider({ children }) {
       savedItems,
       authLoading,
       authError,
+      clearAuthError,
       loginWithGoogle,
       signupWithGoogle,
       loginWithPassword,
