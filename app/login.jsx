@@ -10,6 +10,27 @@ import { useAppState } from "../lib/app-state";
 
 WebBrowser.maybeCompleteAuthSession();
 
+function stripApiSuffix(message) {
+  return String(message || "").replace(/\s*\(API:\s*[^)]+\)\s*$/, "").trim();
+}
+
+function getAuthAlertTitle(message) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("account already exists")) return "Account already exists";
+  if (normalized.includes("incorrect email or password")) return "Sign in failed";
+  if (normalized.includes("sign in with google")) return "Use Google sign-in";
+  if (normalized.includes("no account found")) return "Account not found";
+  return "Authentication error";
+}
+
+function getAuthAlertMessage(message) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("account already exists")) {
+    return "Please sign in instead.";
+  }
+  return message;
+}
+
 export default function LoginScreen() {
   const router = useRouter();
   const { currentUser, isReady, loginWithGoogle, signupWithGoogle, authLoading, authError } = useAppState();
@@ -55,10 +76,11 @@ export default function LoginScreen() {
   }, [loginWithGoogle, response, router, signupWithGoogle]);
 
   useEffect(() => {
-    const message = String(authError || "").trim();
+    const rawMessage = String(authError || "").trim();
+    const message = stripApiSuffix(rawMessage);
     if (!message || message === lastAuthErrorRef.current) return;
     lastAuthErrorRef.current = message;
-    Alert.alert("Authentication error", message);
+    Alert.alert(getAuthAlertTitle(message), getAuthAlertMessage(message));
   }, [authError]);
 
   function onGooglePress(intent) {

@@ -84,7 +84,16 @@ router.post("/google/callback", async (req, res) => {
         profileComplete: false,
       });
     } else {
-      if (authIntent === "signup") {
+      const sameGoogleAccount =
+        !user.providerUserId ||
+        String(user.providerUserId).startsWith("pwd:") ||
+        user.providerUserId === payload.sub;
+      const canResumeIncompleteSignup =
+        authIntent === "signup" &&
+        !user.profileComplete &&
+        sameGoogleAccount;
+
+      if (authIntent === "signup" && !canResumeIncompleteSignup) {
         return res.status(409).json({ message: "Account already exists. Please sign in." });
       }
       if (

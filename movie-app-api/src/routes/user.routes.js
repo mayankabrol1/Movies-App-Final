@@ -100,6 +100,26 @@ router.patch("/me/avatar", authMiddleware, async (req, res) => {
   });
 });
 
+router.delete("/me/pending-signup", authMiddleware, async (req, res) => {
+  const isPendingGoogleSignup =
+    !req.user.profileComplete &&
+    !!req.user.providerUserId &&
+    !String(req.user.providerUserId).startsWith("pwd:");
+
+  if (!isPendingGoogleSignup) {
+    return res.status(400).json({ message: "No pending Google signup to discard." });
+  }
+
+  const userId = req.user._id;
+  await Promise.all([
+    SavedItem.deleteMany({ userId }),
+    RefreshToken.deleteMany({ userId }),
+    User.deleteOne({ _id: userId }),
+  ]);
+
+  return res.json({ ok: true });
+});
+
 router.delete("/me", authMiddleware, async (req, res) => {
   const userId = req.user._id;
   await Promise.all([

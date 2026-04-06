@@ -173,7 +173,7 @@ export default function ProfileScreen() {
             <Pressable
               onPress={onPickProfileImage}
               disabled={avatarSaving}
-              className="absolute -top-1 -right-1 h-11 w-11 rounded-full bg-cyan-500 border-4 border-white items-center justify-center"
+              className="absolute -top-1 -right-1 h-11 w-11 rounded-full bg-cyan-500 border-2 border-white items-center justify-center"
               style={{ opacity: avatarSaving ? 0.7 : 1 }}
             >
               <FontAwesome name="pencil" size={16} color="#ffffff" />

@@ -176,9 +176,7 @@ export function AppStateProvider({ children }) {
       setSavedItems(items);
       return data.user;
     } catch (error) {
-      setAuthError(
-        `${error?.message || (intent === "signup" ? "Could not create account" : "Could not sign in")} (API: ${API_BASE_URL})`
-      );
+      setAuthError(error?.message || (intent === "signup" ? "Could not create account" : "Could not sign in"));
       throw error;
     } finally {
       setAuthLoading(false);
@@ -211,7 +209,7 @@ export function AppStateProvider({ children }) {
       setCurrentUser(data.user);
       return data.user;
     } catch (error) {
-      setAuthError(`${error?.message || "Could not sign in"} (API: ${API_BASE_URL})`);
+      setAuthError(error?.message || "Could not sign in");
       throw error;
     } finally {
       setAuthLoading(false);
@@ -236,7 +234,7 @@ export function AppStateProvider({ children }) {
       setCurrentUser(data.user);
       return data.user;
     } catch (error) {
-      setAuthError(`${error?.message || "Could not create account"} (API: ${API_BASE_URL})`);
+      setAuthError(error?.message || "Could not create account");
       throw error;
     } finally {
       setAuthLoading(false);
@@ -273,6 +271,18 @@ export function AppStateProvider({ children }) {
       setCurrentUser(data.user);
     }
     return data?.user || null;
+  }
+
+  async function discardPendingGoogleSignup() {
+    try {
+      const response = await authenticatedFetch("/me/pending-signup", { method: "DELETE" });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.message || "Could not discard pending signup");
+      }
+    } finally {
+      await clearSession();
+    }
   }
 
   async function logout() {
@@ -401,6 +411,7 @@ export function AppStateProvider({ children }) {
       signupWithPassword,
       completeProfile,
       updateProfileAvatar,
+      discardPendingGoogleSignup,
       logout,
       deleteAccount,
       isSaved,

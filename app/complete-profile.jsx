@@ -254,7 +254,7 @@ export const COUNTRY_CODE_OPTIONS = [
 ];
 export default function CompleteProfileScreen() {
   const router = useRouter();
-  const { currentUser, completeProfile, logout } = useAppState();
+  const { currentUser, completeProfile, logout, discardPendingGoogleSignup } = useAppState();
   const [phoneCode, setPhoneCode] = useState("+1");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [country, setCountry] = useState("");
@@ -337,7 +337,11 @@ export default function CompleteProfileScreen() {
         <AppButton
           variant="secondary"
           onPress={async () => {
-            await logout();
+            if (currentUser.provider === "google") {
+              await discardPendingGoogleSignup();
+            } else {
+              await logout();
+            }
             router.replace("/login");
           }}
         >
