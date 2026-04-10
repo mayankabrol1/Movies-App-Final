@@ -38,6 +38,14 @@ const SEARCH_OPTIONS = [
   { label: "TV", value: "tv" },
 ];
 
+function createDefaultScrollOffsets() {
+  return {
+    [TAB_KEYS.movies]: 0,
+    [TAB_KEYS.tv]: 0,
+    [TAB_KEYS.search]: 0,
+  };
+}
+
 function getTitle(item) {
   return item?.title || item?.name || item?.original_title || item?.original_name || "Untitled";
 }
@@ -141,13 +149,8 @@ export default function MoviesAppScreen() {
   const screenCacheKey = `${String(currentUser?.id || "guest")}:${authSessionVersion}`;
   const cachedState = MOVIES_SCREEN_CACHE.get(screenCacheKey);
   const listRef = useRef(null);
-  const scrollOffsetsRef = useRef(
-    cachedState?.scrollOffsets || {
-      [TAB_KEYS.movies]: 0,
-      [TAB_KEYS.tv]: 0,
-      [TAB_KEYS.search]: 0,
-    }
-  );
+  const scrollOffsetsRef = useRef(cachedState?.scrollOffsets || createDefaultScrollOffsets());
+  const lastCacheKeyRef = useRef(screenCacheKey);
 
   const [activeTab, setActiveTab] = useState(() => cachedState?.activeTab || TAB_KEYS.movies);
   const [movieType, setMovieType] = useState(() => cachedState?.movieType || "now_playing");
@@ -321,6 +324,30 @@ export default function MoviesAppScreen() {
   useEffect(() => {
     if (activeTab === TAB_KEYS.search && hasSearched && query.trim()) loadSearch();
   }, [searchType]);
+
+  useEffect(() => {
+    if (lastCacheKeyRef.current === screenCacheKey) return;
+    lastCacheKeyRef.current = screenCacheKey;
+
+    const nextState = MOVIES_SCREEN_CACHE.get(screenCacheKey);
+    scrollOffsetsRef.current = nextState?.scrollOffsets || createDefaultScrollOffsets();
+
+    setActiveTab(nextState?.activeTab || TAB_KEYS.movies);
+    setMovieType(nextState?.movieType || "now_playing");
+    setTvType(nextState?.tvType || "popular");
+    setSearchType(nextState?.searchType || "multi");
+    setQuery(nextState?.query || "");
+    setHasSearched(nextState?.hasSearched || false);
+    setSearchError("");
+    setSearchCompleted(nextState?.searchCompleted || false);
+    setSearchPageLoading(false);
+    setLoading(false);
+    setApiError("");
+    setResults(nextState?.results || []);
+    setTotalResults(nextState?.totalResults || 0);
+    setPageIndex(nextState?.pageIndex || 1);
+    setRegion(nextState?.region || getTmdbRegion());
+  }, [screenCacheKey]);
 
   useEffect(() => {
     MOVIES_SCREEN_CACHE.set(screenCacheKey, {
