@@ -5,6 +5,7 @@ import {
   Animated,
   FlatList,
   Image,
+  Keyboard,
   Modal,
   Pressable,
   Text,
@@ -162,6 +163,7 @@ export default function RayaAssistant() {
   const welcomedUserRef = useRef("");
   const introAnimRef = useRef(new Animated.Value(0));
   const closePressScale = useRef(new Animated.Value(1)).current;
+  const panelLiftAnim = useRef(new Animated.Value(0)).current;
 
   const canShow = !!currentUser?.id && !!currentUser?.profileComplete;
 
@@ -173,6 +175,34 @@ export default function RayaAssistant() {
       if (introDelayTimeoutRef.current) clearTimeout(introDelayTimeoutRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      const keyboardHeight = Number(event?.endCoordinates?.height || 0);
+      const liftAmount = Math.max(40, Math.min(110, keyboardHeight * 0.22));
+      Animated.timing(panelLiftAnim, {
+        toValue: -liftAmount,
+        duration: Platform.OS === "ios" ? 240 : 180,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      Animated.timing(panelLiftAnim, {
+        toValue: 0,
+        duration: Platform.OS === "ios" ? 220 : 180,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [panelLiftAnim]);
 
   function hideIntroBubble(animated = true) {
     if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
@@ -425,10 +455,13 @@ export default function RayaAssistant() {
           <View pointerEvents="box-none" className="flex-1 items-end justify-end pl-10 pr-4 pb-6 pt-20">
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : undefined}
-              keyboardVerticalOffset={Platform.OS === "ios" ? 18 : 0}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 42 : 0}
               style={{ width: "100%", maxWidth: 390 }}
             >
-              <View className="bg-white rounded-3xl border border-gray-200 h-[86%] min-h-[430px] max-h-[760px] overflow-hidden">
+              <Animated.View
+                style={{ transform: [{ translateY: panelLiftAnim }] }}
+                className="bg-white rounded-3xl border border-gray-200 h-[86%] min-h-[430px] max-h-[760px] overflow-hidden"
+              >
               <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200">
                 <View className="flex-row items-center gap-3">
                   <View className="h-7 w-7 rounded-full bg-slate-800 border border-slate-700 items-center justify-center">
@@ -480,7 +513,7 @@ export default function RayaAssistant() {
                   </Pressable>
                 </View>
               </View>
-            </View>
+            </Animated.View>
           </KeyboardAvoidingView>
           </View>
         </View>
