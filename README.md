@@ -10,11 +10,11 @@ The project combines a React Native frontend with a Node.js/Express backend, sec
 
 - Browse movies and TV shows by category, including now playing, upcoming, airing today, popular, and top rated
 - Search across movies and TV shows
-- View dedicated media information screens with key metadata
-- Create an account with email/password or continue with Google
-- Complete and manage a user profile with name, email, phone number, country, and profile image
-- Save movies and TV shows to a personal library tied to the signed-in account
-- Use the Raya AI assistant for conversational movie and TV recommendations
+- View detailed information about movies and TV shows 
+- Create an account with email/password or sign in with Google
+- Complete and manage profile details including name, email, phone number, country, and profile image
+- Save movies and TV shows to a personal library for each user account
+- Use an in-app AI assistant named Raya for conversational movie and TV recommendations
 - Save recommended titles directly from the Raya chat into the user library
 
 ## Authentication And Security
