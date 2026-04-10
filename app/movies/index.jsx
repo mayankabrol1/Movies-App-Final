@@ -140,6 +140,14 @@ export default function MoviesAppScreen() {
   const { currentUser, isReady, isSaved, toggleSaved, authSessionVersion } = useAppState();
   const screenCacheKey = `${String(currentUser?.id || "guest")}:${authSessionVersion}`;
   const cachedState = MOVIES_SCREEN_CACHE.get(screenCacheKey);
+  const listRef = useRef(null);
+  const scrollOffsetsRef = useRef(
+    cachedState?.scrollOffsets || {
+      [TAB_KEYS.movies]: 0,
+      [TAB_KEYS.tv]: 0,
+      [TAB_KEYS.search]: 0,
+    }
+  );
 
   const [activeTab, setActiveTab] = useState(() => cachedState?.activeTab || TAB_KEYS.movies);
   const [movieType, setMovieType] = useState(() => cachedState?.movieType || "now_playing");
@@ -327,6 +335,7 @@ export default function MoviesAppScreen() {
       totalResults,
       pageIndex,
       region,
+      scrollOffsets: scrollOffsetsRef.current,
     });
   }, [
     activeTab,
@@ -342,6 +351,15 @@ export default function MoviesAppScreen() {
     region,
     screenCacheKey,
   ]);
+
+  useEffect(() => {
+    if (showSearchPrompt || showInitialLoader) return;
+    const targetOffset = scrollOffsetsRef.current[activeTab] || 0;
+    const restoreTimer = setTimeout(() => {
+      listRef.current?.scrollToOffset?.({ offset: targetOffset, animated: false });
+    }, 0);
+    return () => clearTimeout(restoreTimer);
+  }, [activeTab, showInitialLoader, showSearchPrompt, pageResults.length]);
 
   const showSearchPrompt = activeTab === TAB_KEYS.search && !hasSearched;
   const isSearchLoading =
@@ -510,8 +528,14 @@ export default function MoviesAppScreen() {
             </View>
           ) : null}
           <FlatList
+            ref={listRef}
+            key={activeTab}
             contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
             data={pageResults}
+            onScroll={(event) => {
+              scrollOffsetsRef.current[activeTab] = event.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
             keyExtractor={(item, index) =>
               activeTab === TAB_KEYS.search && searchType === "multi"
                 ? `${item.media_type}-${item.id}-${index}`
